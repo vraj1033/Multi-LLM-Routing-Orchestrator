@@ -1,0 +1,35 @@
+{
+  "name": "multi-llm-routing-orchestrator",
+  "version": "1.0.0",
+  "description": "Multi LLM Routing Orchestrator with AI-powered chat and subscription management",
+  "main": "index.js",
+  "scripts": {
+    "dev": "concurrently \"npm run dev:frontend\" \"npm run dev:backend\"",
+    "dev:frontend": "cd frontend && npm run dev",
+    "dev:backend": "cd backend && npm run dev",
+    "build": "cd frontend && npm run build",
+    "start": "cd frontend && npm run preview",
+    "install:all": "npm install && cd frontend && npm install && cd ../backend && npm install",
+    "vercel-build": "cd frontend && npm install && npm run build"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "jsonwebtoken": "^9.0.2",
+    "razorpay": "^2.9.2",
+    "crypto": "^1.0.1"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  },
+  "keywords": [
+    "ai",
+    "llm",
+    "chat",
+    "routing",
+    "orchestrator",
+    "react",
+    "nodejs"
+  ],
+  "author": "Your Name",
+  "license": "MIT"
+}
