@@ -1,6 +1,5 @@
 from pydantic_settings import BaseSettings
 from typing import List
-import os
 
 
 class Settings(BaseSettings):
@@ -35,8 +34,8 @@ class Settings(BaseSettings):
         case_sensitive = False
 
 
-# Create settings instance
 settings = Settings()
+
 
 
 
