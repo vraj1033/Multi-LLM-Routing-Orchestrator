@@ -18,7 +18,7 @@ interface AuthState {
   isAuthenticated: boolean
   isLoading: boolean
   error: string | null
-  
+
   // Actions
   login: (email: string, password: string) => Promise<void>
   register: (name: string, email: string, password: string) => Promise<void>
@@ -44,21 +44,25 @@ export const useAuthStore = create<AuthState>()(
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email, password }),
           })
+
           const data = await res.json()
           if (!res.ok) throw new Error(data.detail || 'Login failed')
 
+          // ✅ Save token and user immediately
           set({
             token: data.access_token,
+            user: data.user || null,
             isAuthenticated: true,
             isLoading: false,
-            error: null
+            error: null,
           })
-          // Fetch user data
+
+          // ✅ Optional: re-validate with /auth/me
           await get().checkAuth()
         } catch (error) {
           set({
             isLoading: false,
-            error: error instanceof Error ? error.message : 'Login failed'
+            error: error instanceof Error ? error.message : 'Login failed',
           })
           throw error
         }
@@ -78,7 +82,7 @@ export const useAuthStore = create<AuthState>()(
         } catch (error) {
           set({
             isLoading: false,
-            error: error instanceof Error ? error.message : 'Registration failed'
+            error: error instanceof Error ? error.message : 'Registration failed',
           })
           throw error
         }
@@ -89,13 +93,15 @@ export const useAuthStore = create<AuthState>()(
           user: null,
           token: null,
           isAuthenticated: false,
-          error: null
+          error: null,
         })
       },
 
       checkAuth: async () => {
         const stored = localStorage.getItem('auth-storage')
-        const token = stored ? JSON.parse(stored).token : null
+        const parsed = stored ? JSON.parse(stored) : null
+        const token = parsed?.state?.token || null // ✅ Fixed token lookup
+
         if (!token) {
           set({ isAuthenticated: false, user: null })
           return
@@ -107,37 +113,33 @@ export const useAuthStore = create<AuthState>()(
           })
           const data = await res.json()
           if (!res.ok) throw new Error(data.detail || 'Failed to fetch user')
+
           set({ user: data, isAuthenticated: true, error: null })
         } catch (error) {
           set({
             user: null,
             token: null,
             isAuthenticated: false,
-            error: null
+            error: null,
           })
-          if (!window.location.pathname.includes('/login') &&
-              !window.location.pathname.includes('/register')) {
+          if (
+            !window.location.pathname.includes('/login') &&
+            !window.location.pathname.includes('/register')
+          ) {
             window.location.href = '/login'
           }
         }
       },
 
-      clearError: () => set({ error: null })
+      clearError: () => set({ error: null }),
     }),
     {
       name: 'auth-storage',
       partialize: (state) => ({
         token: state.token,
         isAuthenticated: state.isAuthenticated,
-        user: state.user
-      })
+        user: state.user,
+      }),
     }
   )
 )
-
-
-
-
-
-
-
