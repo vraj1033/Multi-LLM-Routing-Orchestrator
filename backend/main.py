@@ -31,10 +31,16 @@ app = FastAPI(
     lifespan=lifespan
 )
 
-# CORS
+# --- CORS Configuration ---
+# Add your Vercel frontend URL and local dev URL
+cors_origins = [
+    "https://multi-llm-routing-orchestrator-tc1e-4vq4yq5hb.vercel.app",  # deployed frontend
+    "http://localhost:5173",  # local Vite dev
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.cors_origins,
+    allow_origins=cors_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -75,8 +81,6 @@ async def global_exception_handler(request, exc):
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8000))
     uvicorn.run("main:app", host="0.0.0.0", port=port, reload=settings.debug)
-
-
 
 
 
