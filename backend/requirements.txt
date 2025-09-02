@@ -8,7 +8,6 @@ passlib[bcrypt]==1.7.4
 python-multipart==0.0.6
 httpx==0.25.2
 pydantic[email]==1.10.8
-pydantic-settings==0.7.0
 python-dotenv==1.0.0
 psycopg2-binary==2.9.9
 razorpay==1.4.1
