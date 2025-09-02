@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from contextlib import asynccontextmanager
 import uvicorn
+import os
 
 from app.core.config import settings
 from app.core.database import init_db
@@ -84,12 +85,14 @@ async def global_exception_handler(request, exc):
 
 
 if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 8000))
     uvicorn.run(
         "main:app",
         host="0.0.0.0",
-        port=8000,
+        port=port,
         reload=settings.debug
     )
+
 
 
 
