@@ -1,6 +1,8 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import { authApi } from '../services/api'
+
+// Use Vite env for backend URL
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL
 
 interface User {
   id: number
@@ -37,9 +39,16 @@ export const useAuthStore = create<AuthState>()(
       login: async (email: string, password: string) => {
         set({ isLoading: true, error: null })
         try {
-          const response = await authApi.login(email, password)
+          const res = await fetch(`${API_BASE_URL}/api/auth/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password }),
+          })
+          const data = await res.json()
+          if (!res.ok) throw new Error(data.detail || 'Login failed')
+
           set({
-            token: response.access_token,
+            token: data.access_token,
             isAuthenticated: true,
             isLoading: false,
             error: null
@@ -58,7 +67,13 @@ export const useAuthStore = create<AuthState>()(
       register: async (name: string, email: string, password: string) => {
         set({ isLoading: true, error: null })
         try {
-          await authApi.register(name, email, password)
+          const res = await fetch(`${API_BASE_URL}/api/auth/register`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name, email, password }),
+          })
+          const data = await res.json()
+          if (!res.ok) throw new Error(data.detail || 'Registration failed')
           set({ isLoading: false, error: null })
         } catch (error) {
           set({
@@ -79,38 +94,35 @@ export const useAuthStore = create<AuthState>()(
       },
 
       checkAuth: async () => {
-        const { token } = get()
+        const stored = localStorage.getItem('auth-storage')
+        const token = stored ? JSON.parse(stored).token : null
         if (!token) {
           set({ isAuthenticated: false, user: null })
           return
         }
 
         try {
-          const user = await authApi.getCurrentUser()
-          set({
-            user,
-            isAuthenticated: true,
-            error: null
+          const res = await fetch(`${API_BASE_URL}/api/auth/me`, {
+            headers: { Authorization: `Bearer ${token}` },
           })
+          const data = await res.json()
+          if (!res.ok) throw new Error(data.detail || 'Failed to fetch user')
+          set({ user: data, isAuthenticated: true, error: null })
         } catch (error) {
-          // If auth check fails, clear everything and redirect to login
           set({
             user: null,
             token: null,
             isAuthenticated: false,
             error: null
           })
-          
-          // Only redirect if we're not already on login/register pages
-          if (!window.location.pathname.includes('/login') && !window.location.pathname.includes('/register')) {
+          if (!window.location.pathname.includes('/login') &&
+              !window.location.pathname.includes('/register')) {
             window.location.href = '/login'
           }
         }
       },
 
-      clearError: () => {
-        set({ error: null })
-      }
+      clearError: () => set({ error: null })
     }),
     {
       name: 'auth-storage',
