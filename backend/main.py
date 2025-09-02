@@ -34,7 +34,9 @@ app = FastAPI(
 # --- CORS Configuration ---
 # Add your Vercel frontend URL and local dev URL
 cors_origins = [
-    "https://multi-llm-routing-orchestrator-tc1e-4vq4yq5hb.vercel.app",  # deployed frontend
+    "https://multi-llm-routing-orchestrator-tc1e-4vq4yq5hb.vercel.app",
+    "https://multi-llm-routing-orchestrator-pfcvnofpv.vercel.app",
+    "https://multi-llm-routing-orchestrator.vercel.app",# deployed frontend
     "http://localhost:5173",  # local Vite dev
 ]
 
